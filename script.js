@@ -1,18 +1,19 @@
 let players = {
-    Fraser: { earnings: 5.00, tasks: 0, fines: 0.00 },
-    Eli: { earnings: 5.00, tasks: 0, fines: 0.00 },
-    Myla: { earnings: 5.00, tasks: 0, fines: 0.00 }
+    Fraser: { earnings: 5.00, tasks: 0, fines: 0.00, taskLog: {} },
+    Eli: { earnings: 5.00, tasks: 0, fines: 0.00, taskLog: {} },
+    Myla: { earnings: 5.00, tasks: 0, fines: 0.00, taskLog: {} }
 };
 let currentPlayer = 'Fraser';
+let activityDates = {};
 
 const chart = new Chart(document.getElementById('earnings-chart'), {
     type: 'bar',
     data: {
-        labels: ['Fraser', 'Eli', 'Myla'],
+        labels: ['Captain Fraser', 'Thunder Eli', 'Mystic Myla'],
         datasets: [{
-            label: 'Earnings (£)',
+            label: 'Power Earnings (£)',
             data: [players.Fraser.earnings, players.Eli.earnings, players.Myla.earnings],
-            backgroundColor: ['#32cd32', '#4682b4', '#ff4500']
+            backgroundColor: ['#ff4500', '#00b7eb', '#ffcc00']
         }]
     },
     options: {
@@ -21,30 +22,30 @@ const chart = new Chart(document.getElementById('earnings-chart'), {
     }
 });
 
-// Task-specific emojis/icons
 const taskEmojis = {
     'Making bed': '🛏️',
     'Tidying room': '🧹',
     'Walking dog': '🐶',
-    'Learning new skills': '📚',
+    'Learning new skills': '🧠',
     'Reading for 5 mins': '📖',
     'Washing dishes': '🍽️',
-    'Drying dishes': '🧼',
+    'Drying dishes': '💧',
     'Tidying downstairs': '🏠',
-    'Hoovering downstairs': '🧹',
-    'Garden tidy': '🌳',
+    'Hoovering downstairs': '🌪️',
+    'Garden tidy': '🌿',
     'Car wash (outside)': '🚗',
-    'Car wash (inside)': '🚘',
-    'Revision books (30 mins)': '✏️',
+    'Car wash (inside)': '✨',
+    'Revision books (30 mins)': '📚',
     'Taking out rubbish': '🗑️',
     'Helping with dinner': '🍳',
     'Helping with laundry': '👕',
-    'School positive': '🏆'
+    'School positive': '🏅'
 };
 
 window.onload = function() {
     updatePlayerControls();
     updateAll();
+    updateCalendar();
 };
 
 function updatePlayerControls() {
@@ -60,10 +61,10 @@ function updatePlayerControls() {
             <button class="fine-button" onclick="addFine('Fraser', 1.00)">Fine Fraser £1.00</button>
             <button class="fine-button" onclick="addFine('Eli', 1.00)">Fine Eli £1.00</button>
             <button class="fine-button" onclick="addFine('Myla', 1.00)">Fine Myla £1.00</button>
-            <button class="parent-button" onclick="adjustEarnings('Fraser', -1)">Remove £1 from Fraser</button>
-            <button class="parent-button" onclick="adjustEarnings('Eli', -1)">Remove £1 from Eli</button>
-            <button class="parent-button" onclick="adjustEarnings('Myla', -1)">Remove £1 from Myla</button>
-            <button class="parent-button" onclick="resetGame()">Reset Game</button>
+            <button class="parent-button" onclick="adjustEarnings('Fraser', -1)">Zap £1 from Fraser</button>
+            <button class="parent-button" onclick="adjustEarnings('Eli', -1)">Zap £1 from Eli</button>
+            <button class="parent-button" onclick="adjustEarnings('Myla', -1)">Zap £1 from Myla</button>
+            <button class="parent-button" onclick="resetGame()">Reset Universe</button>
         `;
     } else {
         controls.innerHTML = `
@@ -91,6 +92,8 @@ function updatePlayerControls() {
 function addEarnings(task, amount, button) {
     players[currentPlayer].earnings += amount;
     players[currentPlayer].tasks += 1;
+    players[currentPlayer].taskLog[task] = (players[currentPlayer].taskLog[task] || 0) + 1;
+    logActivityDate();
     showEmoji(task, button);
     updateAll();
 }
@@ -99,25 +102,27 @@ function addFine(player, amount) {
     players[player].earnings -= amount;
     players[player].fines += amount;
     if (players[player].earnings < 0) players[player].earnings = 0;
+    logActivityDate();
     updateAll();
 }
 
 function adjustEarnings(player, amount) {
     players[player].earnings += amount;
     if (players[player].earnings < 0) players[player].earnings = 0;
+    logActivityDate();
     updateAll();
 }
 
 function showEmoji(task, button) {
-    const emoji = taskEmojis[task] || '⭐'; // Default to star if no emoji
+    const emoji = taskEmojis[task] || '💥';
     const span = document.createElement('span');
     span.textContent = emoji;
     span.className = 'emoji';
     const rect = button.getBoundingClientRect();
     span.style.left = `${rect.left + rect.width / 2}px`;
-    span.style.top = `${rect.top - 20}px`;
+    span.style.top = `${rect.top - 30}px`;
     document.body.appendChild(span);
-    setTimeout(() => span.remove(), 1500); // Longer duration for visibility
+    setTimeout(() => span.remove(), 1500);
 }
 
 function updateLedger() {
@@ -126,7 +131,7 @@ function updateLedger() {
     for (let player in players) {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${player}</td>
+            <td>${player === 'Fraser' ? 'Captain Fraser' : player === 'Eli' ? 'Thunder Eli' : 'Mystic Myla'}</td>
             <td>£${players[player].earnings.toFixed(2)}</td>
             <td>${players[player].tasks}</td>
             <td>£${players[player].fines.toFixed(2)}</td>
@@ -146,19 +151,64 @@ function updateChart() {
     chart.update();
 }
 
+function updateTally() {
+    const tallyContainer = document.getElementById('tally-container');
+    tallyContainer.innerHTML = '';
+    for (let player in players) {
+        const heroName = player === 'Fraser' ? 'Captain Fraser' : player === 'Eli' ? 'Thunder Eli' : 'Mystic Myla';
+        const tallyDiv = document.createElement('div');
+        tallyDiv.className = 'tally-item';
+        tallyDiv.innerHTML = `<h3>${heroName}</h3>`;
+        const ul = document.createElement('ul');
+        for (let task in players[player].taskLog) {
+            const li = document.createElement('li');
+            li.textContent = `${task}: ${players[player].taskLog[task]} ${taskEmojis[task] || ''}`;
+            ul.appendChild(li);
+        }
+        tallyDiv.appendChild(ul);
+        tallyContainer.appendChild(tallyDiv);
+    }
+}
+
+function logActivityDate() {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    activityDates[today] = (activityDates[today] || 0) + 1;
+}
+
+function updateCalendar() {
+    const calendarDays = document.getElementById('calendar-days');
+    calendarDays.innerHTML = '';
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(today.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'calendar-day';
+        dayDiv.innerHTML = `
+            <span>${date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' })}</span>
+            <span>${activityDates[dateStr] ? '🦸 ' + activityDates[dateStr] : '💤'}</span>
+        `;
+        calendarDays.appendChild(dayDiv);
+    }
+}
+
 function updateAll() {
     updateLedger();
     updateLeaderboard();
     updateChart();
+    updateTally();
 }
 
 function resetGame() {
-    if (confirm('Are you sure you want to reset the game?')) {
+    if (confirm('Ready to reboot the superhero universe?')) {
         players = {
-            Fraser: { earnings: 5.00, tasks: 0, fines: 0.00 },
-            Eli: { earnings: 5.00, tasks: 0, fines: 0.00 },
-            Myla: { earnings: 5.00, tasks: 0, fines: 0.00 }
+            Fraser: { earnings: 5.00, tasks: 0, fines: 0.00, taskLog: {} },
+            Eli: { earnings: 5.00, tasks: 0, fines: 0.00, taskLog: {} },
+            Myla: { earnings: 5.00, tasks: 0, fines: 0.00, taskLog: {} }
         };
+        activityDates = {};
         updateAll();
+        updateCalendar();
     }
 }
