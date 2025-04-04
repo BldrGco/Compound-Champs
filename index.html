@@ -107,6 +107,10 @@
             margin: 10px 0;
             word-break: break-all;
         }
+        #error-message {
+            color: red;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -115,6 +119,7 @@
         <p id="player-name">Loading...</p>
         <p id="sync-link">Game Link: <a href="#" id="sync-url">Copy this URL to sync</a></p>
         <p>Share your updated link after actions. Paste a shared link and refresh to sync.</p>
+        <p id="error-message"></p>
 
         <div class="player-section" id="player-controls"></div>
 
@@ -149,72 +154,11 @@
             Myla: { earnings: 5.00, tasks: 0, fines: 0.00 }
         };
         let currentPlayer = null;
+        let chart = null;
 
-        const chart = new Chart(document.getElementById('earnings-chart'), {
-            type: 'bar',
-            data: {
-                labels: ['Fraser', 'Eli', 'Myla'],
-                datasets: [{
-                    label: 'Earnings (£)',
-                    data: [players.Fraser.earnings, players.Eli.earnings, players.Myla.earnings],
-                    backgroundColor: ['#32cd32', '#4682b4', '#ff4500']
-                }]
-            },
-            options: {
-                scales: { y: { beginAtZero: true } },
-                plugins: { legend: { display: false } }
-            }
-        });
-
-        // Load player and state from URL on initial load
-        window.onload = function() {
-            updateFromURL();
-        };
-
-        // Listen for URL changes (e.g., back/forward navigation)
-        window.onpopstate = function() {
-            updateFromURL();
-        };
-
-        function updateFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            currentPlayer = urlParams.get('player') || 'Fraser';
-            document.getElementById('player-name').textContent = `${currentPlayer}'s Controls`;
-            loadStateFromURL(urlParams);
-            renderPlayerControls();
-            updateAll();
-            document.getElementById('sync-url').href = window.location.href;
-            document.getElementById('sync-url').textContent = window.location.href;
-        }
-
-        function loadStateFromURL(params) {
-            players.Fraser.earnings = parseFloat(params.get('fraserEarnings')) || 5.00;
-            players.Fraser.tasks = parseInt(params.get('fraserTasks')) || 0;
-            players.Fraser.fines = parseFloat(params.get('fraserFines')) || 0.00;
-            players.Eli.earnings = parseFloat(params.get('eliEarnings')) || 5.00;
-            players.Eli.tasks = parseInt(params.get('eliTasks')) || 0;
-            players.Eli.fines = parseFloat(params.get('eliFines')) || 0.00;
-            players.Myla.earnings = parseFloat(params.get('mylaEarnings')) || 5.00;
-            players.Myla.tasks = parseInt(params.get('mylaTasks')) || 0;
-            players.Myla.fines = parseFloat(params.get('mylaFines')) || 0.00;
-        }
-
-        function renderPlayerControls() {
-            const controls = document.getElementById('player-controls');
-            controls.innerHTML = '';
-            if (currentPlayer === 'Parent') {
-                controls.innerHTML = `
-                    <button class="fine-button" onclick="addFine('Fraser', 0.50)">Fine Fraser £0.50</button>
-                    <button class="fine-button" onclick="addFine('Eli', 0.50)">Fine Eli £0.50</button>
-                    <button class="fine-button" onclick="addFine('Myla', 0.50)">Fine Myla £0.50</button>
-                    <button class="fine-button" onclick="addFine('Fraser', 1.00)">Fine Fraser £1.00</button>
-                    <button class="fine-button" onclick="addFine('Eli', 1.00)">Fine Eli £1.00</button>
-                    <button class="fine-button" onclick="addFine('Myla', 1.00)">Fine Myla £1.00</button>
-                    <button class="parent-button" onclick="adjustEarnings('Fraser', -1)">Remove £1 from Fraser</button>
-                    <button class="parent-button" onclick="adjustEarnings('Eli', -1)">Remove £1 from Eli</button>
-                    <button class="parent-button" onclick="adjustEarnings('Myla', -1)">Remove £1 from Myla</button>
-                    <button class="parent-button" onclick="resetGame()">Reset Game</button>
-                    <button onclick="navigator.clipboard.writeText(window.location.href)">Copy My Link</button>
-                `;
-            } else {
-                controls.innerHTML = `
+        try {
+            chart = new Chart(document.getElementById('earnings-chart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Fraser', 'Eli', 'Myla'],
+                    datasets: [{
