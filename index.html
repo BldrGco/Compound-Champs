@@ -3,36 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compound Champs</title>
+    <title>Superhero Compound Champs</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>Compound Champs</h1>
-        <p>Grow your £5 by completing tasks, avoiding fines, and beating your siblings!</p>
+        <h1>Superhero Compound Champs</h1>
+        <p class="tagline">Unleash Your Powers, Earn Your Rewards!</p>
         
         <div class="player-select">
-            <label for="player-dropdown">Select Player: </label>
+            <label for="player-dropdown">Choose Your Hero: </label>
             <select id="player-dropdown" onchange="updatePlayerControls()">
-                <option value="Fraser">Fraser</option>
-                <option value="Eli">Eli</option>
-                <option value="Myla">Myla</option>
-                <option value="Parent">Parent</option>
+                <option value="Fraser">Captain Fraser</option>
+                <option value="Eli">Thunder Eli</option>
+                <option value="Myla">Mystic Myla</option>
+                <option value="Parent">Super Parent</option>
             </select>
         </div>
 
         <div class="player-section" id="player-controls"></div>
 
         <div class="ledger">
-            <h2>Ledger</h2>
+            <h2>Hero Ledger</h2>
             <table>
                 <thead>
                     <tr>
-                        <th>Player</th>
-                        <th>Total Earnings</th>
-                        <th>Tasks Completed</th>
-                        <th>Fines</th>
+                        <th>Hero</th>
+                        <th>Power Earnings</th>
+                        <th>Missions Done</th>
+                        <th>Villain Fines</th>
                     </tr>
                 </thead>
                 <tbody id="ledger-table"></tbody>
@@ -40,9 +41,19 @@
         </div>
 
         <div class="leaderboard">
-            <div class="leaderboard-item"><h3>Fraser</h3><p id="leader-fraser">£5.00</p></div>
-            <div class="leaderboard-item"><h3>Eli</h3><p id="leader-eli">£5.00</p></div>
-            <div class="leaderboard-item"><h3>Myla</h3><p id="leader-myla">£5.00</p></div>
+            <div class="leaderboard-item"><h3>Captain Fraser</h3><p id="leader-fraser">£5.00</p></div>
+            <div class="leaderboard-item"><h3>Thunder Eli</h3><p id="leader-eli">£5.00</p></div>
+            <div class="leaderboard-item"><h3>Mystic Myla</h3><p id="leader-myla">£5.00</p></div>
+        </div>
+
+        <div class="task-tally">
+            <h2>Mission Tally</h2>
+            <div id="tally-container"></div>
+        </div>
+
+        <div class="calendar">
+            <h2>Hero Calendar</h2>
+            <div id="calendar-days"></div>
         </div>
 
         <canvas id="earnings-chart"></canvas>
