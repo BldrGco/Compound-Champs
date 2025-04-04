@@ -17,24 +17,26 @@
             color: #2e8b57;
         }
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
         }
-        .player-select, .task-list, .fines, .ledger, .parent-controls {
-            margin: 20px 0;
+        .player-section {
             background-color: white;
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 400px;
         }
         button {
-            padding: 10px 20px;
+            padding: 8px 15px;
             margin: 5px;
             background-color: #4682b4;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 12px;
         }
         button:hover {
             background-color: #4169e1;
@@ -60,7 +62,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 20px;
         }
         th, td {
             padding: 10px;
@@ -90,60 +92,31 @@
             max-width: 600px;
             margin: 20px auto;
         }
+        .star {
+            position: absolute;
+            color: gold;
+            font-size: 24px;
+            animation: starPop 1s ease-out forwards;
+        }
+        @keyframes starPop {
+            0% { transform: scale(0); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+        #sync-link {
+            margin: 10px 0;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Compound Champs</h1>
-        <p>Grow your £5 by completing tasks, avoiding fines, and beating your siblings!</p>
+        <p id="player-name">Loading...</p>
+        <p id="sync-link">Game Link: <a href="#" id="sync-url">Copy this URL to sync</a></p>
+        <p>Share your updated link after actions. Refresh to see everyone's updates.</p>
 
-        <div class="player-select">
-            <h2>Select Player</h2>
-            <button onclick="selectPlayer('Fraser')">Fraser</button>
-            <button onclick="selectPlayer('Eli')">Eli</button>
-            <button onclick="selectPlayer('Myla')">Myla</button>
-            <button onclick="selectPlayer('Parent')">Parent</button>
-            <p>Current Player: <span id="current-player">None</span></p>
-        </div>
-
-        <div class="task-list">
-            <h2>Daily Tasks</h2>
-            <button class="task-button" onclick="addEarnings('Making bed', 0.50)">Making Bed - £0.50</button>
-            <button class="task-button" onclick="addEarnings('Tidying room', 0.50)">Tidying Room - £0.50</button>
-            <button class="task-button" onclick="addEarnings('Walking dog', 1.00)">Walking Dog - £1.00</button>
-            <button class="task-button" onclick="addEarnings('Learning new skills', 1.50)">Learning Skills - £1.50</button>
-            <button class="task-button" onclick="addEarnings('Reading for 5 mins', 0.50)">Reading 5 mins - £0.50</button>
-            <button class="task-button" onclick="addEarnings('Washing dishes', 0.50)">Washing Dishes - £0.50</button>
-            <button class="task-button" onclick="addEarnings('Drying dishes', 0.50)">Drying Dishes - £0.50</button>
-            <button class="task-button" onclick="addEarnings('Tidying downstairs', 1.00)">Tidying Downstairs - £1.00</button>
-            <button class="task-button" onclick="addEarnings('Hoovering downstairs', 1.00)">Hoovering - £1.00</button>
-            <button class="task-button" onclick="addEarnings('Garden tidy', 1.00)">Garden Tidy - £1.00</button>
-            <button class="task-button" onclick="addEarnings('Car wash (outside)', 1.00)">Car Wash (Outside) - £1.00</button>
-            <button class="task-button" onclick="addEarnings('Car wash (inside)', 1.50)">Car Wash (Inside) - £1.50</button>
-            <button class="task-button" onclick="addEarnings('Revision books (30 mins)', 1.00)">Revision (30 mins) - £1.00</button>
-            <button class="task-button" onclick="addEarnings('Taking out rubbish', 0.50)">Rubbish - £0.50</button>
-            <button class="task-button" onclick="addEarnings('Helping with dinner', 0.50)">Dinner Help - £0.50</button>
-            <button class="task-button" onclick="addEarnings('Helping with laundry', 0.50)">Laundry Help - £0.50</button>
-            <button class="task-button" onclick="addEarnings('School positive', 2.00)">School Positive - £2.00</button>
-        </div>
-
-        <div class="fines">
-            <h2>Fines (Parent Only)</h2>
-            <button class="fine-button" onclick="addFine('Fraser', 0.50)">Fine Fraser £0.50</button>
-            <button class="fine-button" onclick="addFine('Eli', 0.50)">Fine Eli £0.50</button>
-            <button class="fine-button" onclick="addFine('Myla', 0.50)">Fine Myla £0.50</button>
-            <button class="fine-button" onclick="addFine('Fraser', 1.00)">Fine Fraser £1.00</button>
-            <button class="fine-button" onclick="addFine('Eli', 1.00)">Fine Eli £1.00</button>
-            <button class="fine-button" onclick="addFine('Myla', 1.00)">Fine Myla £1.00</button>
-        </div>
-
-        <div class="parent-controls" id="parent-controls" style="display: none;">
-            <h2>Parent Controls</h2>
-            <button class="parent-button" onclick="adjustEarnings('Fraser', -1)">Remove £1 from Fraser</button>
-            <button class="parent-button" onclick="adjustEarnings('Eli', -1)">Remove £1 from Eli</button>
-            <button class="parent-button" onclick="adjustEarnings('Myla', -1)">Remove £1 from Myla</button>
-            <button class="parent-button" onclick="resetGame()">Reset Game</button>
-        </div>
+        <div class="player-section" id="player-controls"></div>
 
         <div class="ledger">
             <h2>Ledger</h2>
@@ -156,11 +129,7 @@
                         <th>Fines</th>
                     </tr>
                 </thead>
-                <tbody id="ledger-table">
-                    <tr><td>Fraser</td><td>£5.00</td><td>0</td><td>£0.00</td></tr>
-                    <tr><td>Eli</td><td>£5.00</td><td>0</td><td>£0.00</td></tr>
-                    <tr><td>Myla</td><td>£5.00</td><td>0</td><td>£0.00</td></tr>
-                </tbody>
+                <tbody id="ledger-table"></tbody>
             </table>
         </div>
 
@@ -174,63 +143,117 @@
     </div>
 
     <script>
-        let currentPlayer = null;
         let players = {
             Fraser: { earnings: 5.00, tasks: 0, fines: 0.00 },
             Eli: { earnings: 5.00, tasks: 0, fines: 0.00 },
             Myla: { earnings: 5.00, tasks: 0, fines: 0.00 }
         };
+        let currentPlayer = null;
 
         const chart = new Chart(document.getElementById('earnings-chart'), {
             type: 'bar',
             data: {
                 labels: ['Fraser', 'Eli', 'Myla'],
-                datasets: [{
-                    label: 'Earnings (£)',
-                    data: [5, 5, 5],
-                    backgroundColor: ['#32cd32', '#4682b4', '#ff4500']
-                }]
+                datasets: [{ label: 'Earnings (£)', data: [5, 5, 5], backgroundColor: ['#32cd32', '#4682b4', '#ff4500'] }]
             },
-            options: {
-                scales: { y: { beginAtZero: true } },
-                plugins: { legend: { display: false } }
-            }
+            options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
         });
 
-        function selectPlayer(player) {
-            currentPlayer = player;
-            document.getElementById('current-player').textContent = player;
-            document.getElementById('parent-controls').style.display = player === 'Parent' ? 'block' : 'none';
+        // Load player and state from URL
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            currentPlayer = urlParams.get('player') || 'Fraser';
+            document.getElementById('player-name').textContent = `${currentPlayer}'s Controls`;
+            loadStateFromURL(urlParams);
+            renderPlayerControls();
+            updateAll();
+        };
+
+        function loadStateFromURL(params) {
+            players.Fraser.earnings = parseFloat(params.get('fraserEarnings')) || 5.00;
+            players.Fraser.tasks = parseInt(params.get('fraserTasks')) || 0;
+            players.Fraser.fines = parseFloat(params.get('fraserFines')) || 0.00;
+            players.Eli.earnings = parseFloat(params.get('eliEarnings')) || 5.00;
+            players.Eli.tasks = parseInt(params.get('eliTasks')) || 0;
+            players.Eli.fines = parseFloat(params.get('eliFines')) || 0.00;
+            players.Myla.earnings = parseFloat(params.get('mylaEarnings')) || 5.00;
+            players.Myla.tasks = parseInt(params.get('mylaTasks')) || 0;
+            players.Myla.fines = parseFloat(params.get('mylaFines')) || 0.00;
         }
 
-        function addEarnings(task, amount) {
-            if (!currentPlayer || currentPlayer === 'Parent') {
-                alert('Please select a kid player to earn money!');
-                return;
+        function renderPlayerControls() {
+            const controls = document.getElementById('player-controls');
+            controls.innerHTML = '';
+            if (currentPlayer === 'Parent') {
+                controls.innerHTML = `
+                    <button class="fine-button" onclick="addFine('Fraser', 0.50)">Fine Fraser £0.50</button>
+                    <button class="fine-button" onclick="addFine('Eli', 0.50)">Fine Eli £0.50</button>
+                    <button class="fine-button" onclick="addFine('Myla', 0.50)">Fine Myla £0.50</button>
+                    <button class="fine-button" onclick="addFine('Fraser', 1.00)">Fine Fraser £1.00</button>
+                    <button class="fine-button" onclick="addFine('Eli', 1.00)">Fine Eli £1.00</button>
+                    <button class="fine-button" onclick="addFine('Myla', 1.00)">Fine Myla £1.00</button>
+                    <button class="parent-button" onclick="adjustEarnings('Fraser', -1)">Remove £1 from Fraser</button>
+                    <button class="parent-button" onclick="adjustEarnings('Eli', -1)">Remove £1 from Eli</button>
+                    <button class="parent-button" onclick="adjustEarnings('Myla', -1)">Remove £1 from Myla</button>
+                    <button class="parent-button" onclick="resetGame()">Reset Game</button>
+                    <button onclick="navigator.clipboard.writeText(window.location.href)">Copy My Link</button>
+                `;
+            } else {
+                controls.innerHTML = `
+                    <button class="task-button" onclick="addEarnings('Making bed', 0.50, this)">Making Bed - £0.50</button>
+                    <button class="task-button" onclick="addEarnings('Tidying room', 0.50, this)">Tidying Room - £0.50</button>
+                    <button class="task-button" onclick="addEarnings('Walking dog', 1.00, this)">Walking Dog - £1.00</button>
+                    <button class="task-button" onclick="addEarnings('Learning new skills', 1.50, this)">Learning Skills - £1.50</button>
+                    <button class="task-button" onclick="addEarnings('Reading for 5 mins', 0.50, this)">Reading 5 mins - £0.50</button>
+                    <button class="task-button" onclick="addEarnings('Washing dishes', 0.50, this)">Washing Dishes - £0.50</button>
+                    <button class="task-button" onclick="addEarnings('Drying dishes', 0.50, this)">Drying Dishes - £0.50</button>
+                    <button class="task-button" onclick="addEarnings('Tidying downstairs', 1.00, this)">Tidying Downstairs - £1.00</button>
+                    <button class="task-button" onclick="addEarnings('Hoovering downstairs', 1.00, this)">Hoovering - £1.00</button>
+                    <button class="task-button" onclick="addEarnings('Garden tidy', 1.00, this)">Garden Tidy - £1.00</button>
+                    <button class="task-button" onclick="addEarnings('Car wash (outside)', 1.00, this)">Car Wash (Outside) - £1.00</button>
+                    <button class="task-button" onclick="addEarnings('Car wash (inside)', 1.50, this)">Car Wash (Inside) - £1.50</button>
+                    <button class="task-button" onclick="addEarnings('Revision books (30 mins)', 1.00, this)">Revision (30 mins) - £1.00</button>
+                    <button class="task-button" onclick="addEarnings('Taking out rubbish', 0.50, this)">Rubbish - £0.50</button>
+                    <button class="task-button" onclick="addEarnings('Helping with dinner', 0.50, this)">Dinner Help - £0.50</button>
+                    <button class="task-button" onclick="addEarnings('Helping with laundry', 0.50, this)">Laundry Help - £0.50</button>
+                    <button class="task-button" onclick="addEarnings('School positive', 2.00, this)">School Positive - £2.00</button>
+                    <button onclick="navigator.clipboard.writeText(window.location.href)">Copy My Link</button>
+                `;
             }
+        }
+
+        function addEarnings(task, amount, button) {
             players[currentPlayer].earnings += amount;
             players[currentPlayer].tasks += 1;
-            updateLedger();
+            showStar(button);
+            updateAll();
+            updateURL();
         }
 
         function addFine(player, amount) {
-            if (currentPlayer !== 'Parent') {
-                alert('Only Parent can issue fines!');
-                return;
-            }
             players[player].earnings -= amount;
             players[player].fines += amount;
-            updateLedger();
+            if (players[player].earnings < 0) players[player].earnings = 0;
+            updateAll();
+            updateURL();
         }
 
         function adjustEarnings(player, amount) {
-            if (currentPlayer !== 'Parent') {
-                alert('Only Parent can adjust earnings!');
-                return;
-            }
             players[player].earnings += amount;
             if (players[player].earnings < 0) players[player].earnings = 0;
-            updateLedger();
+            updateAll();
+            updateURL();
+        }
+
+        function showStar(button) {
+            const star = document.createElement('span');
+            star.textContent = '★';
+            star.className = 'star';
+            const rect = button.getBoundingClientRect();
+            star.style.left = `${rect.left + rect.width / 2}px`;
+            star.style.top = `${rect.top - 20}px`;
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 1000);
         }
 
         function updateLedger() {
@@ -245,9 +268,13 @@
                     <td>£${players[player].fines.toFixed(2)}</td>
                 `;
                 tableBody.appendChild(row);
+            }
+        }
+
+        function updateLeaderboard() {
+            for (let player in players) {
                 document.getElementById(`leader-${player}`).textContent = `£${players[player].earnings.toFixed(2)}`;
             }
-            updateChart();
         }
 
         function updateChart() {
@@ -255,21 +282,39 @@
             chart.update();
         }
 
+        function updateURL() {
+            const params = new URLSearchParams();
+            params.set('player', currentPlayer);
+            params.set('fraserEarnings', players.Fraser.earnings.toFixed(2));
+            params.set('fraserTasks', players.Fraser.tasks);
+            params.set('fraserFines', players.Fraser.fines.toFixed(2));
+            params.set('eliEarnings', players.Eli.earnings.toFixed(2));
+            params.set('eliTasks', players.Eli.tasks);
+            params.set('eliFines', players.Eli.fines.toFixed(2));
+            params.set('mylaEarnings', players.Myla.earnings.toFixed(2));
+            params.set('mylaTasks', players.Myla.tasks);
+            params.set('mylaFines', players.Myla.fines.toFixed(2));
+            const newURL = `${window.location.pathname}?${params.toString()}`;
+            window.history.pushState({}, '', newURL);
+            document.getElementById('sync-url').href = newURL;
+            document.getElementById('sync-url').textContent = window.location.href;
+        }
+
+        function updateAll() {
+            updateLedger();
+            updateLeaderboard();
+            updateChart();
+        }
+
         function resetGame() {
-            if (currentPlayer !== 'Parent') {
-                alert('Only Parent can reset the game!');
-                return;
-            }
             if (confirm('Are you sure you want to reset the game?')) {
                 players = {
                     Fraser: { earnings: 5.00, tasks: 0, fines: 0.00 },
                     Eli: { earnings: 5.00, tasks: 0, fines: 0.00 },
                     Myla: { earnings: 5.00, tasks: 0, fines: 0.00 }
                 };
-                currentPlayer = null;
-                document.getElementById('current-player').textContent = 'None';
-                document.getElementById('parent-controls').style.display = 'none';
-                updateLedger();
+                updateAll();
+                updateURL();
             }
         }
     </script>
