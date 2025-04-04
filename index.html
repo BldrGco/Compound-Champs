@@ -114,7 +114,7 @@
         <h1>Compound Champs</h1>
         <p id="player-name">Loading...</p>
         <p id="sync-link">Game Link: <a href="#" id="sync-url">Copy this URL to sync</a></p>
-        <p>Share your updated link after actions. Refresh to see everyone's updates.</p>
+        <p>Share your updated link after actions. Paste a shared link and refresh to sync.</p>
 
         <div class="player-section" id="player-controls"></div>
 
@@ -166,16 +166,26 @@
             }
         });
 
-        // Load player and state from URL
+        // Load player and state from URL on initial load
         window.onload = function() {
+            updateFromURL();
+        };
+
+        // Listen for URL changes (e.g., back/forward navigation)
+        window.onpopstate = function() {
+            updateFromURL();
+        };
+
+        function updateFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             currentPlayer = urlParams.get('player') || 'Fraser';
             document.getElementById('player-name').textContent = `${currentPlayer}'s Controls`;
             loadStateFromURL(urlParams);
             renderPlayerControls();
             updateAll();
-            updateURL(); // Ensure initial URL reflects loaded state
-        };
+            document.getElementById('sync-url').href = window.location.href;
+            document.getElementById('sync-url').textContent = window.location.href;
+        }
 
         function loadStateFromURL(params) {
             players.Fraser.earnings = parseFloat(params.get('fraserEarnings')) || 5.00;
@@ -208,123 +218,3 @@
                 `;
             } else {
                 controls.innerHTML = `
-                    <button class="task-button" onclick="addEarnings('Making bed', 0.50, this)">Making Bed - £0.50</button>
-                    <button class="task-button" onclick="addEarnings('Tidying room', 0.50, this)">Tidying Room - £0.50</button>
-                    <button class="task-button" onclick="addEarnings('Walking dog', 1.00, this)">Walking Dog - £1.00</button>
-                    <button class="task-button" onclick="addEarnings('Learning new skills', 1.50, this)">Learning Skills - £1.50</button>
-                    <button class="task-button" onclick="addEarnings('Reading for 5 mins', 0.50, this)">Reading 5 mins - £0.50</button>
-                    <button class="task-button" onclick="addEarnings('Washing dishes', 0.50, this)">Washing Dishes - £0.50</button>
-                    <button class="task-button" onclick="addEarnings('Drying dishes', 0.50, this)">Drying Dishes - £0.50</button>
-                    <button class="task-button" onclick="addEarnings('Tidying downstairs', 1.00, this)">Tidying Downstairs - £1.00</button>
-                    <button class="task-button" onclick="addEarnings('Hoovering downstairs', 1.00, this)">Hoovering - £1.00</button>
-                    <button class="task-button" onclick="addEarnings('Garden tidy', 1.00, this)">Garden Tidy - £1.00</button>
-                    <button class="task-button" onclick="addEarnings('Car wash (outside)', 1.00, this)">Car Wash (Outside) - £1.00</button>
-                    <button class="task-button" onclick="addEarnings('Car wash (inside)', 1.50, this)">Car Wash (Inside) - £1.50</button>
-                    <button class="task-button" onclick="addEarnings('Revision books (30 mins)', 1.00, this)">Revision (30 mins) - £1.00</button>
-                    <button class="task-button" onclick="addEarnings('Taking out rubbish', 0.50, this)">Rubbish - £0.50</button>
-                    <button class="task-button" onclick="addEarnings('Helping with dinner', 0.50, this)">Dinner Help - £0.50</button>
-                    <button class="task-button" onclick="addEarnings('Helping with laundry', 0.50, this)">Laundry Help - £0.50</button>
-                    <button class="task-button" onclick="addEarnings('School positive', 2.00, this)">School Positive - £2.00</button>
-                    <button onclick="navigator.clipboard.writeText(window.location.href)">Copy My Link</button>
-                `;
-            }
-        }
-
-        function addEarnings(task, amount, button) {
-            players[currentPlayer].earnings += amount;
-            players[currentPlayer].tasks += 1;
-            showStar(button);
-            updateAll();
-            updateURL();
-        }
-
-        function addFine(player, amount) {
-            players[player].earnings -= amount;
-            players[player].fines += amount;
-            if (players[player].earnings < 0) players[player].earnings = 0;
-            updateAll();
-            updateURL();
-        }
-
-        function adjustEarnings(player, amount) {
-            players[player].earnings += amount;
-            if (players[player].earnings < 0) players[player].earnings = 0;
-            updateAll();
-            updateURL();
-        }
-
-        function showStar(button) {
-            const star = document.createElement('span');
-            star.textContent = '★';
-            star.className = 'star';
-            const rect = button.getBoundingClientRect();
-            star.style.left = `${rect.left + rect.width / 2}px`;
-            star.style.top = `${rect.top - 20}px`;
-            document.body.appendChild(star);
-            setTimeout(() => star.remove(), 1000);
-        }
-
-        function updateLedger() {
-            const tableBody = document.getElementById('ledger-table');
-            tableBody.innerHTML = '';
-            for (let player in players) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${player}</td>
-                    <td>£${players[player].earnings.toFixed(2)}</td>
-                    <td>${players[player].tasks}</td>
-                    <td>£${players[player].fines.toFixed(2)}</td>
-                `;
-                tableBody.appendChild(row);
-            }
-        }
-
-        function updateLeaderboard() {
-            document.getElementById('leader-fraser').textContent = `£${players.Fraser.earnings.toFixed(2)}`;
-            document.getElementById('leader-eli').textContent = `£${players.Eli.earnings.toFixed(2)}`;
-            document.getElementById('leader-myla').textContent = `£${players.Myla.earnings.toFixed(2)}`;
-        }
-
-        function updateChart() {
-            chart.data.datasets[0].data = [players.Fraser.earnings, players.Eli.earnings, players.Myla.earnings];
-            chart.update();
-        }
-
-        function updateURL() {
-            const params = new URLSearchParams();
-            params.set('player', currentPlayer);
-            params.set('fraserEarnings', players.Fraser.earnings.toFixed(2));
-            params.set('fraserTasks', players.Fraser.tasks);
-            params.set('fraserFines', players.Fraser.fines.toFixed(2));
-            params.set('eliEarnings', players.Eli.earnings.toFixed(2));
-            params.set('eliTasks', players.Eli.tasks);
-            params.set('eliFines', players.Eli.fines.toFixed(2));
-            params.set('mylaEarnings', players.Myla.earnings.toFixed(2));
-            params.set('mylaTasks', players.Myla.tasks);
-            params.set('mylaFines', players.Myla.fines.toFixed(2));
-            const newURL = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-            window.history.replaceState({}, '', newURL); // Use replaceState to avoid history clutter
-            document.getElementById('sync-url').href = newURL;
-            document.getElementById('sync-url').textContent = newURL;
-        }
-
-        function updateAll() {
-            updateLedger();
-            updateLeaderboard();
-            updateChart();
-        }
-
-        function resetGame() {
-            if (confirm('Are you sure you want to reset the game?')) {
-                players = {
-                    Fraser: { earnings: 5.00, tasks: 0, fines: 0.00 },
-                    Eli: { earnings: 5.00, tasks: 0, fines: 0.00 },
-                    Myla: { earnings: 5.00, tasks: 0, fines: 0.00 }
-                };
-                updateAll();
-                updateURL();
-            }
-        }
-    </script>
-</body>
-</html>
