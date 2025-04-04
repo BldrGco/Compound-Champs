@@ -27,7 +27,7 @@ const taskEmojis = {
     'Tidying room': '🧹',
     'Walking dog': '🐶',
     'Learning new skills': '🧠',
-    'Reading for 5 mins': '📖',
+    'Reading for 30 mins': '📖',
     'Washing dishes': '🍽️',
     'Drying dishes': '💧',
     'Tidying downstairs': '🏠',
@@ -36,7 +36,7 @@ const taskEmojis = {
     'Car wash (outside)': '🚗',
     'Car wash (inside)': '✨',
     'Revision books (30 mins)': '📚',
-    'Taking out rubbish': '🗑️',
+    'Take out rubbish': '🗑️',
     'Helping with dinner': '🍳',
     'Helping with laundry': '👕',
     'School positive': '🏅'
@@ -72,7 +72,7 @@ function updatePlayerControls() {
             <button class="task-button" onclick="addEarnings('Tidying room', 0.50, this)">Tidying Room - £0.50</button>
             <button class="task-button" onclick="addEarnings('Walking dog', 1.00, this)">Walking Dog - £1.00</button>
             <button class="task-button" onclick="addEarnings('Learning new skills', 1.50, this)">Learning Skills - £1.50</button>
-            <button class="task-button" onclick="addEarnings('Reading for 5 mins', 0.50, this)">Reading 5 mins - £0.50</button>
+            <button class="task-button" onclick="addEarnings('Reading for 30 mins', 0.50, this)">Reading 30 mins - £0.50</button>
             <button class="task-button" onclick="addEarnings('Washing dishes', 0.50, this)">Washing Dishes - £0.50</button>
             <button class="task-button" onclick="addEarnings('Drying dishes', 0.50, this)">Drying Dishes - £0.50</button>
             <button class="task-button" onclick="addEarnings('Tidying downstairs', 1.00, this)">Tidying Downstairs - £1.00</button>
@@ -81,12 +81,13 @@ function updatePlayerControls() {
             <button class="task-button" onclick="addEarnings('Car wash (outside)', 1.00, this)">Car Wash (Outside) - £1.00</button>
             <button class="task-button" onclick="addEarnings('Car wash (inside)', 1.50, this)">Car Wash (Inside) - £1.50</button>
             <button class="task-button" onclick="addEarnings('Revision books (30 mins)', 1.00, this)">Revision (30 mins) - £1.00</button>
-            <button class="task-button" onclick="addEarnings('Taking out rubbish', 0.50, this)">Rubbish - £0.50</button>
+            <button class="task-button" onclick="addEarnings('Take out rubbish', 0.50, this)">Take out Rubbish - £0.50</button>
             <button class="task-button" onclick="addEarnings('Helping with dinner', 0.50, this)">Dinner Help - £0.50</button>
             <button class="task-button" onclick="addEarnings('Helping with laundry', 0.50, this)">Laundry Help - £0.50</button>
             <button class="task-button" onclick="addEarnings('School positive', 2.00, this)">School Positive - £2.00</button>
         `;
     }
+    updateAll(); // Ensure UI reflects current state when switching players
 }
 
 function addEarnings(task, amount, button) {
@@ -171,7 +172,7 @@ function updateTally() {
 }
 
 function logActivityDate() {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0];
     activityDates[today] = (activityDates[today] || 0) + 1;
 }
 
