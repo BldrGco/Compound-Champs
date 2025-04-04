@@ -154,9 +154,16 @@
             type: 'bar',
             data: {
                 labels: ['Fraser', 'Eli', 'Myla'],
-                datasets: [{ label: 'Earnings (£)', data: [5, 5, 5], backgroundColor: ['#32cd32', '#4682b4', '#ff4500'] }]
+                datasets: [{
+                    label: 'Earnings (£)',
+                    data: [players.Fraser.earnings, players.Eli.earnings, players.Myla.earnings],
+                    backgroundColor: ['#32cd32', '#4682b4', '#ff4500']
+                }]
             },
-            options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+            options: {
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { display: false } }
+            }
         });
 
         // Load player and state from URL
@@ -167,6 +174,7 @@
             loadStateFromURL(urlParams);
             renderPlayerControls();
             updateAll();
+            updateURL(); // Ensure initial URL reflects loaded state
         };
 
         function loadStateFromURL(params) {
@@ -272,9 +280,9 @@
         }
 
         function updateLeaderboard() {
-            for (let player in players) {
-                document.getElementById(`leader-${player}`).textContent = `£${players[player].earnings.toFixed(2)}`;
-            }
+            document.getElementById('leader-fraser').textContent = `£${players.Fraser.earnings.toFixed(2)}`;
+            document.getElementById('leader-eli').textContent = `£${players.Eli.earnings.toFixed(2)}`;
+            document.getElementById('leader-myla').textContent = `£${players.Myla.earnings.toFixed(2)}`;
         }
 
         function updateChart() {
@@ -294,10 +302,10 @@
             params.set('mylaEarnings', players.Myla.earnings.toFixed(2));
             params.set('mylaTasks', players.Myla.tasks);
             params.set('mylaFines', players.Myla.fines.toFixed(2));
-            const newURL = `${window.location.pathname}?${params.toString()}`;
-            window.history.pushState({}, '', newURL);
+            const newURL = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+            window.history.replaceState({}, '', newURL); // Use replaceState to avoid history clutter
             document.getElementById('sync-url').href = newURL;
-            document.getElementById('sync-url').textContent = window.location.href;
+            document.getElementById('sync-url').textContent = newURL;
         }
 
         function updateAll() {
